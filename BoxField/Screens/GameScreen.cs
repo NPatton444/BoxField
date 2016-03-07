@@ -16,9 +16,22 @@ namespace BoxField
         Boolean leftArrowDown, downArrowDown, rightArrowDown, upArrowDown, bDown, nDown, mDown, spaceDown;
 
         //used to draw boxes on screen
-        SolidBrush boxBrush = new SolidBrush(Color.White);
+        SolidBrush[] boxBrush = new SolidBrush[4];
 
-        //TODO - create a list of Boxes
+        //Character Brush
+        SolidBrush charBrush = new SolidBrush(Color.White);
+
+        //Create a list of Boxes
+        List<Box> boxes = new List<Box>();
+        List<Box> boxes2 = new List<Box>();
+
+        int waitTime = 18;
+
+        int x = 500;
+
+        Random randGen = new Random();
+
+        int randColor, randX, randX2, waitForRandom, charX;
 
         public GameScreen()
         {
@@ -27,7 +40,24 @@ namespace BoxField
 
         private void GameScreen_Load(object sender, EventArgs e)
         {
-            //TODO - create initial box object and add it to list of Boxes
+            //Create initial box object and add it to list of Boxes
+            Box b = new Box(x, -35, randColor);
+            boxes.Add(b);
+
+            Box b2 = new Box(x + 200, -35, randColor);
+            boxes2.Add(b2);
+
+            //Draw Initial Character
+            charX = x + 100;
+            Character main = new Character(charX, this.Height - 20);
+
+            //Add Box Colors
+            boxBrush[0] = new SolidBrush(Color.Red);
+            boxBrush[1] = new SolidBrush(Color.Blue);
+            boxBrush[2] = new SolidBrush(Color.Yellow);
+            boxBrush[3] = new SolidBrush(Color.Green);
+
+            randX = randGen.Next(5, 16);
         }
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -100,18 +130,108 @@ namespace BoxField
 
         private void gameLoop_Tick(object sender, EventArgs e)
         {
-            //TODO - update position of each box
+            randX2 = randGen.Next(10, this.Width - 50);
 
-            //TODO - remove box from list if it is off screen
+            randColor = randGen.Next(0, 4);
+
+            if(randX % 4  < 2)
+            {
+                if(x > 10)
+                {
+                    x -= 5;
+                }
+            }
+
+            if(randX % 4 >= 2)
+            {
+                if (x < this.Width - 220)
+                {
+                    x += 5;
+                }
+            }
+
+            randX = randGen.Next(5, 15);
+
+            waitTime--;
+
+            if (waitForRandom < 200)
+            {
+                waitForRandom++;
+                if (waitTime == 0)
+                {
+                    //Add boxes 
+                    Box b = new Box(x, -35, randColor);
+                    boxes.Add(b);
+                    waitTime = 18;
+
+                    Box b2 = new Box(x + 200, -35, randColor);
+                    boxes2.Add(b2);
+                }
+            }
+
+            if(waitForRandom >= 200)
+            {
+                if(waitTime == 0)
+                {
+                    //Add boxes 
+                    Box b = new Box(randX2, -35, randColor);
+                    boxes.Add(b);
+                    waitTime = 18;
+
+                    Box b2 = new Box((x + randX2) / 2, -35, randColor);
+                    boxes2.Add(b2);
+                }
+            }
+
+            //Update position of each box
+            foreach (var Box in boxes)
+            {
+                Box.y += 2;
+            }
+
+            foreach (var Box in boxes2)
+            {
+                Box.y += 2;
+            }
+
+            //Remove box from list if it is off screen
+            if (boxes[0].y > this.Height)
+            {
+                boxes.RemoveAt(0);
+            }
+
+            if (boxes2[0].y > this.Height)
+            {
+                boxes2.RemoveAt(0);
+            }
+
+            if(rightArrowDown ==  true && charX < this.Width - 50)
+            {
+                charX += 5;
+            }
+
+            if(leftArrowDown == true && charX > 50)
+            {
+                charX -= 5;
+            }
 
             Refresh();
         }
 
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
-            //TODO - draw each box to the screen
+            //Draw each box to the screen
+            foreach (var Box in boxes)
+            {
+                e.Graphics.FillRectangle(boxBrush[Box.color], Box.x, Box.y, 30, 30);
+            }
+
+            foreach (var Box in boxes2)
+            {
+                e.Graphics.FillRectangle(boxBrush[Box.color], Box.x, Box.y, 30, 30);
+            }
+
+            e.Graphics.FillRectangle(charBrush, charX, this.Height - 20, 10, 10);
         }
-
-
     }
 }
